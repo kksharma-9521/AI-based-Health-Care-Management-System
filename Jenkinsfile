@@ -9,7 +9,7 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                bat 'mvn clean install'
+                bat 'mvn clean install -DskipTests'
             }
         }
 
@@ -19,9 +19,9 @@ pipeline {
             }
         }
 
-        stage('Run App') {
+        stage('Package') {
             steps {
-                bat 'mvn spring-boot:run'
+                bat 'mvn package'
             }
         }
     }
