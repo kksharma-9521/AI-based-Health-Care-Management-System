@@ -1,28 +1,27 @@
 pipeline {
     agent any
 
+    tools {
+        jdk 'JDK21'
+        maven 'Maven3'
+    }
+
     stages {
-        stage('Checkout') {
+        stage('Build') {
             steps {
-                echo 'Cloning repository...'
+                bat 'mvn clean install'
             }
         }
 
-        stage('Install Dependencies') {
+        stage('Test') {
             steps {
-                bat 'pip install -r requirements.txt'
+                bat 'mvn test'
             }
         }
 
-        stage('Run Tests') {
+        stage('Run') {
             steps {
-                bat 'pytest || echo No tests found'
-            }
-        }
-
-        stage('Run Application') {
-            steps {
-                bat 'python app.py'
+                bat 'mvn spring-boot:run'
             }
         }
     }
