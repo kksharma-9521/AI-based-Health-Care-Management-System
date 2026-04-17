@@ -2,21 +2,27 @@ pipeline {
     agent any
 
     stages {
-        stage('Build') {
+        stage('Checkout') {
             steps {
-                echo 'Building project...'
+                echo 'Cloning repository...'
             }
         }
 
-        stage('Test') {
+        stage('Install Dependencies') {
             steps {
-                echo 'Testing project...'
+                bat 'pip install -r requirements.txt'
             }
         }
 
-        stage('Deploy') {
+        stage('Run Tests') {
             steps {
-                echo 'Deploying project...'
+                bat 'pytest || echo No tests found'
+            }
+        }
+
+        stage('Run Application') {
+            steps {
+                bat 'python app.py'
             }
         }
     }
