@@ -15,7 +15,7 @@ pipeline {
 
         stage('Clone Code') {
             steps {
-                git branch: 'main', url: 'YOUR_GITHUB_REPO_URL'
+                git branch: 'main', url: 'https://github.com/kksharma-9521/AI-based-Health-Care-Management-System.git'
             }
         }
 
