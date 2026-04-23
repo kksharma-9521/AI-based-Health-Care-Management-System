@@ -2,32 +2,57 @@ pipeline {
     agent any
 
     tools {
-        jdk 'JDK21'
         maven 'Maven3'
+        jdk 'JDK21'
+    }
+
+    environment {
+        IMAGE_NAME = "kksharma9521/hms-app"
+        TAG = "latest"
     }
 
     stages {
-        stage('Build') {
+
+        stage('Clone Code') {
             steps {
-                bat 'mvn clean install -DskipTests'
+                git branch: 'main', url: 'YOUR_GITHUB_REPO_URL'
             }
         }
 
-        stage('Test') {
+        stage('Build JAR') {
             steps {
-                bat 'mvn test'
-            }
-        }
-        stage('Push image') {
-            docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-creds') {
-                app.push("${env.BUILD_NUMBER}")
-                app.push("latest")
+                bat 'mvn clean package -DskipTests'
             }
         }
 
-        stage('Package') {
+        stage('Build Docker Image') {
             steps {
-                bat 'mvn package'
+                bat 'docker build -t %IMAGE_NAME% .'
+            }
+        }
+
+        stage('Login to Docker Hub') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'docker-hub-creds',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+                    bat 'echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin'
+                }
+            }
+        }
+
+        stage('Push Image') {
+            steps {
+                bat 'docker push %IMAGE_NAME%'
+            }
+        }
+
+        stage('Deploy with Docker Compose') {
+            steps {
+                bat 'docker-compose down'
+                bat 'docker-compose up -d --build'
             }
         }
     }
